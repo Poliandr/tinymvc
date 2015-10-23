@@ -33,12 +33,6 @@ class Route
 		$controller_name = 'Controller_'.$controller_name;
 		$action_name = 'action_'.$action_name;
 
-		/*
-		echo "Model: $model_name <br>";
-		echo "Controller: $controller_name <br>";
-		echo "Action: $action_name <br>";
-		*/
-
 		// подцепляем файл с классом модели (файла модели может и не быть)
 
 		$model_file = strtolower($model_name).'.php';
@@ -54,39 +48,31 @@ class Route
 		if(file_exists($controller_path))
 		{
 			include "application/controllers/".$controller_file;
+			
+			// создаем контроллер
+			$controller = new $controller_name;
+			$action = $action_name;
+			
+			if(method_exists($controller, $action))
+			{
+				// вызываем действие контроллера
+				$controller->$action();
+			}
+			else
+			{
+				// если файл контроллера не содержит требуемого класса или действия
+				$controller = new Controller;
+				$controller->ErrorPage404();
+			}
+			
 		}
 		else
 		{
-			/*
-			правильно было бы кинуть здесь исключение,
-			но для упрощения сразу сделаем редирект на страницу 404
-			*/
-			Route::ErrorPage404();
+			// если файл контроллера отсутствует
+			$controller = new Controller;
+			$controller->ErrorPage404();
 		}
-		
-		// создаем контроллер
-		$controller = new $controller_name;
-		$action = $action_name;
-		
-		if(method_exists($controller, $action))
-		{
-			// вызываем действие контроллера
-			$controller->$action();
-		}
-		else
-		{
-			// здесь также разумнее было бы кинуть исключение
-			Route::ErrorPage404();
-		}
-	
+
 	}
 
-	function ErrorPage404()
-	{
-        $host = 'http://'.$_SERVER['HTTP_HOST'].'/';
-        header('HTTP/1.1 404 Not Found');
-		header("Status: 404 Not Found");
-		header('Location:'.$host.'404');
-    }
-    
 }

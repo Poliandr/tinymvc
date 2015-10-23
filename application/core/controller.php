@@ -15,4 +15,9 @@ class Controller {
 	{
 		// todo	
 	}
+	
+	function ErrorPage404()
+	{
+		$this->view->generate('404_view.php', 'template_view.php');
+	}
 }
